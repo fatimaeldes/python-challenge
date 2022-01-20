@@ -1,57 +1,77 @@
 # import modules
 import os
 import csv
-
+import statistics
 
 # path to file
-budget_path = os.path.join("..", "Resources", "budget_data.csv")
+poll_path  = os.path.join("..", "Resources", "election_data.csv")
 
-# make empty buckets
-total = []
-months = []
-month_change = []
+# make candidate bucket
+candidate_list = []
 
-# make calculation for average
-def average (numbers):
-    total = 0.0
-    for number in numbers:
-        total += number
-    find_average = total/len(numbers)
-    return find_average
-
-with open(budget_path) as csvfile:
-
-    # specify CSV delimiter
-    csvreader = csv.reader(csvfile, delimiter=',')
-    # remove header
+# open csv file
+with open(poll_path) as csvfile:
+    csvreader = csv.reader(csvfile, delimiter=",")
+    # skip header
     csv_header = next(csvfile)
-    # append rows
+    # for loop to find unique candidate names
     for row in csvreader:
-        months.append(row[0])
-        total.append(row[1])
-        month_change.append(int(row[1]))
+        if row[2] not in candidate_list:
+            candidate_list.append(row[2])
+    print(f'List of candidates: {candidate_list}')
 
-    # find net amount profit and losses
-    total_revenue = 0
-    for values in total:
-        total_revenue += int(values)
-    print(f'Total Profits/Losses: ${total_revenue}')
-    net_revenue = [j-i for i,j in zip(month_change[:-1], month_change[1:])]
-    print(f'Average Change: ${round(average(net_revenue),2)}')
-    net_revenue.sort(reverse=True)
-    
-    print(f'Total Months: {len(months)}')
-    print(f'The greatest increase in profits: ${net_revenue[0]}')
-    print(f'The greatest decrease in profits: ${net_revenue[len(net_revenue)-1]}')
-
-    # output
-    output_path = 'Financial Analysis.txt'
+# second for loop to calculate votes
+with open(poll_path) as csvfile:
+    csvreader = csv.reader(csvfile, delimiter=",")
+    csv_header = next(csvfile)
+    Khan_votes = 0
+    Correy_votes = 0
+    Li_votes = 0
+    OTooley_votes = 0   
+    for row in csvreader:
+        if row[2] == candidate_list[0]:
+            Khan_votes += 1
+        elif row[2] == candidate_list[1]:
+            Correy_votes += 1
+        elif row[2] == candidate_list[2]:
+            Li_votes += 1
+        elif row[2] == candidate_list[3]:
+            OTooley_votes += 1
+total_votes = Khan_votes + Correy_votes + Li_votes + OTooley_votes
+print("Election Results")
+print("---------------------------------------------------------")
+print(f'Total Votes: {total_votes}')
+print("---------------------------------------------------------")
+print(f'Khan: {round((Khan_votes/total_votes)*100,3)} ({Khan_votes})')
+print(f'Correy: {round((Correy_votes/total_votes)*100,3)}% ({Correy_votes})')
+print(f'Li: {round((Li_votes/total_votes)*100,3)}% ({Li_votes})')
+print(f"O'Tooley: {round((OTooley_votes/total_votes)*100,3)}% ({OTooley_votes})")
+print("-------------------------------------------------")
+if Khan_votes > Correy_votes and Khan_votes > Li_votes and Khan_votes > OTooley_votes:
+    winner = "Khan"
+    # print("Winner: Khan")
+elif Correy_votes > Khan_votes and Correy_votes > Li_votes and Correy_votes > OTooley_votes:
+    winner = "Correy"
+    # print("Winner: Correy")
+elif Li_votes > Khan_votes and Li_votes > Correy_votes and Li_votes > OTooley_votes:
+    winner = "Li"
+    # print("Winner: Li")
+elif OTooley_votes >= Khan_votes and OTooley_votes >= Li_votes and OTooley_votes >= Correy_votes:
+    winner = "O'Tooley"
+    # print("Winner: O'Tooley")
+print(f'Winner: {winner}')
+print("-----------------------------------------------------------")
+output_path = 'Election Results.txt'
 with open(output_path, 'w', newline ='') as csvfile:
     csvwriter = csv.writer(csvfile, delimiter=',')
-    csvwriter.writerow(['Financial Analysis'])
-    csvwriter.writerow(["------------------------------------------------------"])
-    csvwriter.writerow([f'Total Months: {len(months)}'])
-    csvwriter.writerow([f'Total Profits/Losses: ${total_revenue}'])
-    csvwriter.writerow([f'Average Change: ${round(average(net_revenue),2)}'])
-    csvwriter.writerow([f'The greatest increase in profits: ${net_revenue[0]}'])
-    csvwriter.writerow([f'The greatest decrease in profits: ${net_revenue[len(net_revenue)-1]}'])
+    csvwriter.writerow(["Election Results"])
+    csvwriter.writerow(["----------------------------------------"])
+    csvwriter.writerow([f'Total Votes: {total_votes}'])
+    csvwriter.writerow(["-----------------------------------------"])
+    csvwriter.writerow([f'Khan: {round((Khan_votes/total_votes)*100,3)}% ({Khan_votes})'])
+    csvwriter.writerow([f'Correy: {round((Correy_votes/total_votes)*100,3)}% ({Correy_votes})'])
+    csvwriter.writerow([f'Li: {round((Li_votes/total_votes)*100,3)}% ({Li_votes})'])
+    csvwriter.writerow([f"O'Tooley: {round((OTooley_votes/total_votes)*100,3)}% ({OTooley_votes})"])
+    csvwriter.writerow(["-------------------------------------------------"])
+    csvwriter.writerow([f'Winner: {winner}'])
+    csvwriter.writerow(["------------------------------------"])
